@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CategoryService {
 
-    List<CategoryDto> getScrolledCategoriesByName(String name, long offset);
+    List<CategoryDto> getScrolledCategoriesByName(String name, int offset);
 }

@@ -19,7 +19,8 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{name}")
-    public List<CategoryDto> getCategoriesByName(@PathVariable("name") String name, @RequestParam(value = "offset", defaultValue = "0") long offset) {
+    public List<CategoryDto> getCategoriesByName(@PathVariable("name") String name,
+                                                 @RequestParam(value = "offset", defaultValue = "0") int offset) {
         return this.categoryService.getScrolledCategoriesByName(name, offset);
     }
 }
