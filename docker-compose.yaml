@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    container_name: postgres-db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    environment:
+      POSTGRES_USER: root_user
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: quotes
+    ports:
+      - "5432:5432"
+
+secrets:
+  db-password:
+    file: db_secrets/password.txt
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
