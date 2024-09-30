@@ -1,7 +1,7 @@
 package quotopia.randomquoteservice.service;
 
 import org.springframework.stereotype.Service;
-import quotopia.randomquoteservice.dto.CategoryDto;
+import quotopia.randomquoteservice.dto.CategoryIdDto;
 import quotopia.randomquoteservice.models.Category;
 import quotopia.randomquoteservice.repository.CategoryRepository;
 
@@ -19,14 +19,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getScrolledCategoriesByName(String name, int offset) {
+    public List<CategoryIdDto> getCategoriesByName(String name, int offset) {
 
         List<Category> categoryWindow = this.categoryRepository.findFirst10ByNameContainingOrderByNameAsc(name, offset);
-
         return categoryWindow.stream().map(mapCategoryToDto()).collect(Collectors.toList());
     }
 
-    private Function<Category, CategoryDto> mapCategoryToDto() {
-        return category -> new CategoryDto(category.getId(), category.getName());
+    private Function<Category, CategoryIdDto> mapCategoryToDto() {
+        return category -> new CategoryIdDto(category.getId(), category.getName());
     }
 }

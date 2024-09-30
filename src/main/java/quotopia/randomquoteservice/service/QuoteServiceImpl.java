@@ -1,9 +1,9 @@
 package quotopia.randomquoteservice.service;
 
 import org.springframework.stereotype.Service;
-import quotopia.randomquoteservice.repository.QuoteRepository;
 import quotopia.randomquoteservice.dto.CategoryDto;
 import quotopia.randomquoteservice.models.Quote;
+import quotopia.randomquoteservice.repository.QuoteRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +18,13 @@ public class QuoteServiceImpl implements QuoteService {
     }
 
     @Override
-    public Quote getRandomQuote(int prevQuoteId, List<CategoryDto> categoryDtos) {
+    public Quote getRandomQuote(int prevQuoteId, List<CategoryDto> categories) {
 
-        List<String> categories = categoryDtos.stream().map(CategoryDto::name).toList();
-        Optional<Quote> quoteOptional = this.quoteRepository.findRandomQuoteByCategoriesExcludingPrevId(prevQuoteId, categories);
+        List<String> categoriesStr = categories.stream()
+                .map(data -> data.name().toLowerCase())
+                .filter(data -> !data.isEmpty())
+                .toList();
+        Optional<Quote> quoteOptional = this.quoteRepository.findRandomQuoteByCategoriesExcludingPrevId(prevQuoteId, categoriesStr);
 
         return quoteOptional.orElse(null);
     }

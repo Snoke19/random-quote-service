@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -21,6 +22,21 @@ public class ControllerAdvice {
 
     public ControllerAdvice(MessageSource messageSource) {
         this.messageSource = messageSource;
+    }
+
+    @ExceptionHandler({MissingServletRequestParameterException.class})
+    public ResponseEntity<ResponseError> error(MissingServletRequestParameterException exception, WebRequest request) {
+
+        Map<String, String> errorsDetails = new HashMap<>();
+        ResponseError errorResponse = new ResponseError(
+                "Validation",
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                errorsDetails,
+                request.getDescription(false),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({HandlerMethodValidationException.class})
@@ -80,7 +96,6 @@ public class ControllerAdvice {
 
             }
         });
-
 
         ResponseError errorResponse = new ResponseError(
                 "Validation",
