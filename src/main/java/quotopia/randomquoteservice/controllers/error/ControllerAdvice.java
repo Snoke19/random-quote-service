@@ -1,6 +1,8 @@
 package quotopia.randomquoteservice.controllers.error;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.method.ParameterErrors;
@@ -9,12 +11,13 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import quotopia.randomquoteservice.exceptions.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Slf4j
 @RestControllerAdvice
 public class ControllerAdvice {
 
@@ -22,6 +25,38 @@ public class ControllerAdvice {
 
     public ControllerAdvice(MessageSource messageSource) {
         this.messageSource = messageSource;
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ResponseError> entityNotFoundException(EntityNotFoundException exception, WebRequest request) {
+
+        Map<String, String> errorsDetails = new HashMap<>();
+        ResponseError errorResponse = new ResponseError(
+                "Not found!",
+                HttpStatus.NOT_FOUND.value(),
+                exception.getMessage(),
+                errorsDetails,
+                request.getDescription(false),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({DataAccessException.class})
+    public ResponseEntity<ResponseError> dataAccessException(DataAccessException exception, WebRequest request) {
+
+        log.error("Error: {}", exception.getMessage());
+
+        Map<String, String> errorsDetails = new HashMap<>();
+        ResponseError errorResponse = new ResponseError(
+                "Server Error",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Something went wrong",
+                errorsDetails,
+                request.getDescription(false),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({MissingServletRequestParameterException.class})

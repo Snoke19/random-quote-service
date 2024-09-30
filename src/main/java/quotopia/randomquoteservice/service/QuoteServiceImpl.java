@@ -1,12 +1,12 @@
 package quotopia.randomquoteservice.service;
 
 import org.springframework.stereotype.Service;
-import quotopia.randomquoteservice.dto.CategoryDto;
+import org.springframework.transaction.annotation.Transactional;
+import quotopia.randomquoteservice.models.Category;
 import quotopia.randomquoteservice.models.Quote;
 import quotopia.randomquoteservice.repository.QuoteRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class QuoteServiceImpl implements QuoteService {
@@ -18,14 +18,13 @@ public class QuoteServiceImpl implements QuoteService {
     }
 
     @Override
-    public Quote getRandomQuote(int prevQuoteId, List<CategoryDto> categories) {
-
-        List<String> categoriesStr = categories.stream()
-                .map(data -> data.name().toLowerCase())
-                .filter(data -> !data.isEmpty())
+    @Transactional(readOnly = true)
+    public Quote getRandomQuote(int prevQuoteId, List<Category> categories) {
+        List<String> categoryNames = categories.stream()
+                .map(category -> category.getName().toLowerCase())
+                .filter(name -> !name.isEmpty())
                 .toList();
-        Optional<Quote> quoteOptional = this.quoteRepository.findRandomQuoteByCategoriesExcludingPrevId(prevQuoteId, categoriesStr);
 
-        return quoteOptional.orElse(null);
+        return this.quoteRepository.findRandomQuoteByCategoriesExcludingPreviousId(prevQuoteId, categoryNames);
     }
 }

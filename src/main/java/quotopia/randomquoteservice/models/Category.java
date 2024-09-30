@@ -1,23 +1,20 @@
 package quotopia.randomquoteservice.models;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-
-import java.io.Serializable;
 
 @Setter
 @Getter
-@Entity
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "categories")
-public class Category implements Serializable {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Category {
 
-    @Id
-    @Column(name = "id_category")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String name;
+
+    public Category(String name) {
+        this.name = name;
+    }
 }
