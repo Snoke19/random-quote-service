@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    @Query(nativeQuery = true, value = "select c1_0.id_category, c1_0.name " +
-            "from categories c1_0 " +
-            "where c1_0.name like concat('%', :name, '%') escape '\\' " +
-            "order by c1_0.name " +
+    @Query(nativeQuery = true, value = "select category.id_category, category.name " +
+            "from categories category " +
+            "where (:name IS NULL OR category.name like concat('%', :name, '%') escape '\\') " +
+            "order by category.name " +
             "offset :offset rows fetch first 10 rows only")
     List<Category> findFirst10ByNameContainingOrderByNameAsc(@Param("name") String name, @Param("offset") int offset);
 }

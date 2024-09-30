@@ -1,5 +1,6 @@
 package quotopia.randomquoteservice.controllers;
 
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,9 +19,11 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/categories/{name}")
-    public List<CategoryDto> getCategoriesByName(@PathVariable("name") String name,
-                                                 @RequestParam(value = "offset", defaultValue = "0") int offset) {
+    @GetMapping({"/categories/{name}", "/categories"})
+    public List<CategoryDto> getCategoriesByName(@PathVariable(value = "name", required = false) String name,
+                                                 @Min(value = 0, message = "{category.filter.offset}")
+                                                 @RequestParam(value = "offset", defaultValue = "0")
+                                                 int offset) {
         return this.categoryService.getScrolledCategoriesByName(name, offset);
     }
 }
