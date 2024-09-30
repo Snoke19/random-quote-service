@@ -31,6 +31,6 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         params.addValue("name", categoryName);
         params.addValue("offset", offset);
 
-        return this.namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> new Category(rs.getString("name")));
+        return this.namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> new Category(rs.getString("name").toLowerCase()));
     }
 }

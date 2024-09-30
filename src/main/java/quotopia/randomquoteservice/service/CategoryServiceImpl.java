@@ -19,6 +19,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<Category> getCategoriesByNameWithOffset(String categoryName, int offset) {
+        if (categoryName != null) {
+            categoryName = categoryName.toLowerCase();
+        }
         return this.categoryRepository.findFirst10CategoriesByNameContainingOrderByNameAscWithOffset(categoryName, offset);
     }
 }
