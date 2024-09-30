@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import quotopia.randomquoteservice.dto.QuoteDto;
 import quotopia.randomquoteservice.models.Category;
 import quotopia.randomquoteservice.models.Quote;
 import quotopia.randomquoteservice.service.QuoteService;
@@ -22,11 +21,10 @@ public class QuoteController {
     }
 
     @GetMapping("/quote")
-    public QuoteDto getRandomQuote(@RequestParam("categories")
-                                   @NotEmpty(message = "{quote.filter.notEmpty.categories}") List<Category> categories,
-                                   @RequestParam(value = "prev_quote_id", defaultValue = "0")
-                                   @Min(value = 0, message = "{quote.filter.min.prevQuoteId}") int previousQuoteId) {
-        Quote randomQuote = quoteService.getRandomQuote(previousQuoteId, categories);
-        return new QuoteDto(randomQuote.getId(), randomQuote.getQuote(), randomQuote.getAuthor().getName());
+    public Quote getRandomQuote(@RequestParam("categories")
+                                @NotEmpty(message = "{quote.filter.notEmpty.categories}") List<Category> categories,
+                                @RequestParam(value = "prev_quote_id", defaultValue = "0")
+                                @Min(value = 0, message = "{quote.filter.min.prevQuoteId}") int previousQuoteId) {
+        return quoteService.getRandomQuote(previousQuoteId, categories);
     }
 }
