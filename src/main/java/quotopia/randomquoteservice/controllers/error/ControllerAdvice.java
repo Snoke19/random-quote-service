@@ -82,17 +82,17 @@ public class ControllerAdvice {
         exception.visitResults(new HandlerMethodValidationException.Visitor() {
             @Override
             public void cookieValue(CookieValue cookieValue, ParameterValidationResult result) {
-
+                log.warn("Application does not handle cookies!");
             }
 
             @Override
             public void matrixVariable(MatrixVariable matrixVariable, ParameterValidationResult result) {
-
+                log.warn("Application does not handle matrix variable!");
             }
 
             @Override
             public void modelAttribute(ModelAttribute modelAttribute, ParameterErrors errors) {
-
+                log.warn("Application does not handle model attribute!");
             }
 
             @Override
@@ -111,7 +111,7 @@ public class ControllerAdvice {
 
             @Override
             public void requestHeader(RequestHeader requestHeader, ParameterValidationResult result) {
-
+                log.warn("Application does not handle request's header!");
             }
 
             @Override
@@ -123,12 +123,16 @@ public class ControllerAdvice {
 
             @Override
             public void requestPart(RequestPart requestPart, ParameterErrors errors) {
-
+                log.warn("Application does not handle request's part!");
             }
 
             @Override
             public void other(ParameterValidationResult result) {
-
+                result.getResolvableErrors().forEach(error -> {
+                    String errorMessage = messageSource.getMessage(error, request.getLocale());
+                    String uniqueKey = "unknown-" + result.getContainerIndex() + "-" + errorMessage.hashCode();
+                    errorsDetails.put(uniqueKey, errorMessage);
+                });
             }
         });
 
