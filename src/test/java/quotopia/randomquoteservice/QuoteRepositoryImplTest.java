@@ -10,13 +10,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import quotopia.randomquoteservice.repository.impl.QuoteRepositoryImpl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class QuoteRepositoryImplTest {
+class QuoteRepositoryImplTest {
 
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -34,8 +35,9 @@ public class QuoteRepositoryImplTest {
 
     @Test
     void test_empty_list_parameter_fetch_a_random_quote() {
+        List<String> categories = new ArrayList<>();
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class,
-                () -> quoteRepository.findRandomQuoteByCategoriesExcludingPreviousId(new ArrayList<>()));
+                () -> quoteRepository.findRandomQuoteByCategoriesExcludingPreviousId(categories));
 
         assertThat(illegalArgumentException.getMessage()).isEqualTo("Categories cannot be null or empty");
     }

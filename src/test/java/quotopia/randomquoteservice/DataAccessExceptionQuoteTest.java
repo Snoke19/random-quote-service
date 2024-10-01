@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @Slf4j
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class DataAccessExceptionQuoteTest {
+class DataAccessExceptionQuoteTest {
 
     @Container
     @ServiceConnection
