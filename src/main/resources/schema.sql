@@ -59,9 +59,9 @@ CREATE SEQUENCE categories_quotes_quote_id_seq
 
 CREATE TABLE quotes
 (
-    id_quote  integer                 NOT NULL,
+    id_quote   integer                 NOT NULL,
     quote_text character varying(4000) NOT NULL,
-    author_id integer                 NOT NULL
+    author_id  integer                 NOT NULL
 );
 
 CREATE SEQUENCE quotes_id_quote_seq
@@ -112,17 +112,17 @@ ALTER TABLE ONLY categories_quotes
 
 
 -- Insert records into categories
-INSERT INTO categories (name)
-VALUES ('courage'),
-       ('friendship'),
-       ('happiness'),
-       ('humor'),
-       ('inspirational'),
-       ('life'),
-       ('love'),
-       ('motivational'),
-       ('success'),
-       ('wisdom');
+INSERT INTO categories (id_category, name)
+VALUES (1, 'courage'),
+       (2, 'friendship'),
+       (3, 'happiness'),
+       (4, 'humor'),
+       (5, 'inspirational'),
+       (6, 'life'),
+       (7, 'love'),
+       (8, 'motivational'),
+       (9, 'success'),
+       (10, 'wisdom');
 
 -- Insert records into authors
 INSERT INTO authors (name)
