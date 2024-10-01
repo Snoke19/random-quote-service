@@ -73,7 +73,7 @@ class CategoriesControllerTests {
         assertThat(responseEntity.getBody()).isNotNull();
 
         List<Category> categories = responseEntity.getBody();
-        assertThat(categories.size()).isPositive();
+        assertThat(categories).isNotEmpty();
         assertThat(categories.get(0).getName()).isEqualTo(categoryName);
     }
 
