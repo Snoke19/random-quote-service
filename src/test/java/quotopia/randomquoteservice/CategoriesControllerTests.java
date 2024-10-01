@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class RandomQuoteServiceApplicationTests {
+class CategoriesControllerTests {
 
     @Container
     @ServiceConnection
@@ -50,7 +50,7 @@ class RandomQuoteServiceApplicationTests {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
         List<Category> categories = responseEntity.getBody();
-        assertThat(categories.size()).isEqualTo(10);
+        assertThat(categories).hasSize(10);
 
         assertThat(categories.get(0)).hasFieldOrPropertyWithValue("name", "courage");
         assertThat(categories.get(1)).hasFieldOrPropertyWithValue("name", "friendship");
@@ -73,7 +73,7 @@ class RandomQuoteServiceApplicationTests {
         assertThat(responseEntity.getBody()).isNotNull();
 
         List<Category> categories = responseEntity.getBody();
-        assertThat(categories.size()).isGreaterThanOrEqualTo(1);
+        assertThat(categories.size()).isPositive();
         assertThat(categories.get(0).getName()).isEqualTo(categoryName);
     }
 
@@ -92,7 +92,7 @@ class RandomQuoteServiceApplicationTests {
         assertThat(responseEntity.getBody()).isNotNull();
 
         List<Category> categories = responseEntity.getBody();
-        assertThat(categories.size()).isGreaterThanOrEqualTo(2);
+        assertThat(categories).hasSizeGreaterThanOrEqualTo(2);
         assertThat(categories.get(0).getName()).isEqualTo("happiness");
         assertThat(categories.get(1).getName()).isEqualTo("inspirational");
     }
@@ -113,7 +113,7 @@ class RandomQuoteServiceApplicationTests {
         assertThat(responseEntity.getBody()).isNotNull();
 
         List<Category> categories = responseEntity.getBody();
-        assertThat(categories.size()).isEqualTo(5);
+        assertThat(categories).hasSize(5);
 
         assertThat(categories.get(0).getName()).isEqualTo("life");
         assertThat(categories.get(1).getName()).isEqualTo("love");
@@ -137,6 +137,6 @@ class RandomQuoteServiceApplicationTests {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(responseEntity.getBody()).isNotNull();
         Map<String, String> map = (Map<String, String>) responseEntity.getBody().getDetails();
-        assertThat(map.get("offset")).isEqualTo("Offset cannot be negative!");
+        assertThat(map).containsEntry("offset", "Offset cannot be negative!");
     }
 }
