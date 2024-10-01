@@ -75,4 +75,26 @@ class QuoteControllerTests {
         assertThat(responseError.getDetails()).isNotNull();
         assertThat(responseError.getPath()).isEqualTo("uri=/quote");
     }
+
+    @Test
+    void test_skipped_request_param_random_quote() {
+        ResponseEntity<ResponseError> responseEntity = restTemplate.exchange(
+                "/quote",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody()).isNotNull();
+        ResponseError responseError = responseEntity.getBody();
+        assertThat(responseError).isNotNull();
+
+        assertThat(responseError.getType()).isEqualTo("Validation");
+        assertThat(responseError.getCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(responseError.getMessage()).isEqualTo("Required request parameter 'categories' for method parameter type List is not present");
+        assertThat(responseError.getDetails()).isNotNull();
+        assertThat(responseError.getPath()).isEqualTo("uri=/quote");
+    }
 }
