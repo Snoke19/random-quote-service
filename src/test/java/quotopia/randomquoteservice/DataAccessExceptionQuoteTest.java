@@ -49,7 +49,7 @@ public class DataAccessExceptionQuoteTest {
                 .thenThrow(new QueryTimeoutException("Simulated database timeout"));
 
         ResponseEntity<ResponseError> responseEntity = restTemplate.exchange(
-                "/quote?categories=non_existent_category",
+                "/random/quote?categories=love",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -68,6 +68,6 @@ public class DataAccessExceptionQuoteTest {
         assertThat(responseError.getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
         assertThat(responseError.getMessage()).isEqualTo("Something went wrong");
         assertThat(responseError.getDetails()).isNotNull();
-        assertThat(responseError.getPath()).isEqualTo("uri=/quote");
+        assertThat(responseError.getPath()).isEqualTo("uri=/random/quote");
     }
 }

@@ -97,16 +97,12 @@ public class ControllerAdvice {
 
             @Override
             public void pathVariable(PathVariable pathVariable, ParameterValidationResult result) {
-                result.getResolvableErrors().forEach(error ->
-                        errorsDetails.put(pathVariable.name(), messageSource.getMessage(error, request.getLocale()))
-                );
+                log.warn("Application does not handle path variable!");
             }
 
             @Override
             public void requestBody(RequestBody requestBody, ParameterErrors errors) {
-                errors.getResolvableErrors().forEach(error ->
-                        errorsDetails.put("body", messageSource.getMessage(error, request.getLocale()))
-                );
+                log.warn("Application does not handle request body!");
             }
 
             @Override
@@ -128,11 +124,7 @@ public class ControllerAdvice {
 
             @Override
             public void other(ParameterValidationResult result) {
-                result.getResolvableErrors().forEach(error -> {
-                    String errorMessage = messageSource.getMessage(error, request.getLocale());
-                    String uniqueKey = "unknown-" + result.getContainerIndex() + "-" + errorMessage.hashCode();
-                    errorsDetails.put(uniqueKey, errorMessage);
-                });
+                log.warn("Application does not handle other!");
             }
         });
 

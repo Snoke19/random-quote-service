@@ -37,7 +37,7 @@ class QuoteControllerTests {
     @Test
     void test_get_a_random_quote() {
         ResponseEntity<Quote> responseEntity = restTemplate.exchange(
-                "/quote?categories=love",
+                "/random/quote?categories=love",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -57,7 +57,7 @@ class QuoteControllerTests {
     @Test
     void test_not_found_a_random_quote() {
         ResponseEntity<ResponseError> responseEntity = restTemplate.exchange(
-                "/quote?categories=lovetestetete",
+                "/random/quote?categories=lovetestetete",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -73,13 +73,13 @@ class QuoteControllerTests {
         assertThat(responseError.getCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(responseError.getMessage()).isEqualTo("Quote not found!");
         assertThat(responseError.getDetails()).isNotNull();
-        assertThat(responseError.getPath()).isEqualTo("uri=/quote");
+        assertThat(responseError.getPath()).isEqualTo("uri=/random/quote");
     }
 
     @Test
     void test_skipped_request_param_random_quote() {
         ResponseEntity<ResponseError> responseEntity = restTemplate.exchange(
-                "/quote",
+                "/random/quote",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -95,6 +95,6 @@ class QuoteControllerTests {
         assertThat(responseError.getCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(responseError.getMessage()).isEqualTo("Required request parameter 'categories' for method parameter type List is not present");
         assertThat(responseError.getDetails()).isNotNull();
-        assertThat(responseError.getPath()).isEqualTo("uri=/quote");
+        assertThat(responseError.getPath()).isEqualTo("uri=/random/quote");
     }
 }

@@ -19,7 +19,7 @@ public class QuoteController {
         this.quoteService = quoteService;
     }
 
-    @GetMapping("/quote")
+    @GetMapping("/random/quote")
     public Quote getRandomQuote(@RequestParam("categories")
                                 @NotEmpty(message = "{quote.filter.notEmpty.categories}") List<Category> categories) {
         return quoteService.getRandomQuote(categories);
