@@ -27,7 +27,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     public Quote findRandomQuoteByCategoriesExcludingPreviousId(int previousQuoteId, List<String> categories) {
 
         String sql = """
-                SELECT quote.id_quote, quote.quote, author.id_author AS id_author, author.name AS author_name
+                SELECT quote.id_quote, quote.quote_text, author.id_author AS id_author, author.name AS author_name
                 FROM quotes AS quote
                 JOIN categories_quotes cq ON quote.id_quote = cq.quote_id
                 INNER JOIN public.authors author ON author.id_author = quote.author_id
@@ -55,7 +55,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     private RowMapper<Quote> mapQuote() {
         return (rs, rowNum) -> {
             Author author = new Author(rs.getString("author_name"));
-            return new Quote(rs.getInt("id_quote"), rs.getString("quote"), author);
+            return new Quote(rs.getInt("id_quote"), rs.getString("quote_text"), author);
         };
     }
 }

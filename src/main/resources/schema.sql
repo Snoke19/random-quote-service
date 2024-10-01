@@ -60,7 +60,7 @@ CREATE SEQUENCE categories_quotes_quote_id_seq
 CREATE TABLE quotes
 (
     id_quote  integer                 NOT NULL,
-    quote     character varying(4000) NOT NULL,
+    quote_text character varying(4000) NOT NULL,
     author_id integer                 NOT NULL
 );
 
@@ -138,7 +138,7 @@ VALUES ('Author One'),
        ('Author Ten');
 
 -- Insert records into quotes
-INSERT INTO quotes (quote, author_id)
+INSERT INTO quotes (quote_text, author_id)
 VALUES ('The only way to do great work is to love what you do.', 1),
        ('Success is not the key to happiness. Happiness is the key to success.', 2),
        ('Life is 10% what happens to us and 90% how we react to it.', 3),

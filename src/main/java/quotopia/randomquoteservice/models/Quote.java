@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class Quote {
 
     private Integer id;
-    private String quote;
+    private String quoteText;
     private Author author;
 }
