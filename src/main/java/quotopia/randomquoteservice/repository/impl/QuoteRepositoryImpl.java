@@ -31,7 +31,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
                 FROM quotes AS quote
                 JOIN categories_quotes cq ON quote.id_quote = cq.quote_id
                 INNER JOIN public.authors author ON author.id_author = quote.author_id
-                LEFT JOIN public.categories c ON c.id_category = cq.category_id
+                JOIN public.categories c ON c.id_category = cq.category_id
                 AND c.name IN (:categories)
                 ORDER BY RANDOM() LIMIT 1;
                 """;

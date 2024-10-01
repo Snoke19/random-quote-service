@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import quotopia.randomquoteservice.controllers.error.ResponseError;
 import quotopia.randomquoteservice.models.Quote;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class QuoteControllerTests {
+class QuoteControllerTests {
 
     @Container
     @ServiceConnection
@@ -51,5 +52,27 @@ public class QuoteControllerTests {
         assertThat(quote.getId()).isPositive();
         assertThat(quote.getQuoteText()).isNotEmpty();
         assertThat(quote.getAuthor().getName()).isNotEmpty();
+    }
+
+    @Test
+    void test_not_found_a_random_quote() {
+        ResponseEntity<ResponseError> responseEntity = restTemplate.exchange(
+                "/quote?categories=lovetestetete",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(responseEntity.getBody()).isNotNull();
+        ResponseError responseError = responseEntity.getBody();
+        assertThat(responseError).isNotNull();
+
+        assertThat(responseError.getType()).isEqualTo("Not found!");
+        assertThat(responseError.getCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(responseError.getMessage()).isEqualTo("Quote not found!");
+        assertThat(responseError.getDetails()).isNotNull();
+        assertThat(responseError.getPath()).isEqualTo("uri=/quote");
     }
 }
