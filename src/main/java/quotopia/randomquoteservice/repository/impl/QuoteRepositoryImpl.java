@@ -24,7 +24,7 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     }
 
     @Override
-    public Quote findRandomQuoteByCategoriesExcludingPreviousId(int previousQuoteId, List<String> categories) {
+    public Quote findRandomQuoteByCategoriesExcludingPreviousId(List<String> categories) {
 
         String sql = """
                 SELECT quote.id_quote, quote.quote_text, author.id_author AS id_author, author.name AS author_name
@@ -32,13 +32,11 @@ public class QuoteRepositoryImpl implements QuoteRepository {
                 JOIN categories_quotes cq ON quote.id_quote = cq.quote_id
                 INNER JOIN public.authors author ON author.id_author = quote.author_id
                 LEFT JOIN public.categories c ON c.id_category = cq.category_id
-                WHERE (:previousId IS NULL OR quote.id_quote != :previousId)
                 AND c.name IN (:categories)
                 ORDER BY RANDOM() LIMIT 1;
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("previousId", previousQuoteId);
         params.addValue("categories", categories);
 
         Quote quote;

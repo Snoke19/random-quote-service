@@ -19,12 +19,12 @@ public class QuoteServiceImpl implements QuoteService {
 
     @Override
     @Transactional(readOnly = true)
-    public Quote getRandomQuote(int prevQuoteId, List<Category> categories) {
+    public Quote getRandomQuote(List<Category> categories) {
         List<String> categoryNames = categories.stream()
                 .map(category -> category.getName().toLowerCase())
                 .filter(name -> !name.isEmpty())
                 .toList();
 
-        return this.quoteRepository.findRandomQuoteByCategoriesExcludingPreviousId(prevQuoteId, categoryNames);
+        return this.quoteRepository.findRandomQuoteByCategoriesExcludingPreviousId(categoryNames);
     }
 }

@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CategoriesControllerTests {
+class CategoryControllerTests {
 
     @Container
     @ServiceConnection

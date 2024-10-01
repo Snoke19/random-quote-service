@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface QuoteService {
 
-    Quote getRandomQuote(int previousQuoteId, List<Category> categories);
+    Quote getRandomQuote(List<Category> categories);
 }

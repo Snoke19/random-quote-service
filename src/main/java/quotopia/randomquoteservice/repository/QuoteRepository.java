@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface QuoteRepository {
 
-    Quote findRandomQuoteByCategoriesExcludingPreviousId(int previousQuoteId, List<String> categories);
+    Quote findRandomQuoteByCategoriesExcludingPreviousId(List<String> categories);
 }
