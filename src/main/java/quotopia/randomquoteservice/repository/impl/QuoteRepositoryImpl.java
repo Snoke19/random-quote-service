@@ -26,6 +26,10 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     @Override
     public Quote findRandomQuoteByCategoriesExcludingPreviousId(List<String> categories) {
 
+        if (categories == null || categories.isEmpty()) {
+            throw new IllegalArgumentException("Categories cannot be null or empty");
+        }
+
         String sql = """
                 SELECT quote.id_quote, quote.quote_text, author.id_author AS id_author, author.name AS author_name
                 FROM quotes AS quote
