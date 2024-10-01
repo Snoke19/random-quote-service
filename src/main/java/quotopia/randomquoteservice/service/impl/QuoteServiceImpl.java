@@ -1,10 +1,11 @@
-package quotopia.randomquoteservice.service;
+package quotopia.randomquoteservice.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import quotopia.randomquoteservice.models.Category;
 import quotopia.randomquoteservice.models.Quote;
 import quotopia.randomquoteservice.repository.QuoteRepository;
+import quotopia.randomquoteservice.service.QuoteService;
 
 import java.util.List;
 

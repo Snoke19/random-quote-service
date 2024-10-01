@@ -55,6 +55,26 @@ class QuoteControllerTests {
     }
 
     @Test
+    void test_get_a_random_quote_with_categories_empty_value() {
+        ResponseEntity<Quote> responseEntity = restTemplate.exchange(
+                "/random/quote?categories=love,     ",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+        Quote quote = responseEntity.getBody();
+        assertThat(quote).isNotNull();
+
+        assertThat(quote.getId()).isPositive();
+        assertThat(quote.getQuoteText()).isNotEmpty();
+        assertThat(quote.getAuthor().getName()).isNotEmpty();
+    }
+
+    @Test
     void test_not_found_a_random_quote() {
         ResponseEntity<ResponseError> responseEntity = restTemplate.exchange(
                 "/random/quote?categories=lovetestetete",
