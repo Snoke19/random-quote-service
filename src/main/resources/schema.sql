@@ -122,43 +122,44 @@ VALUES (1, 'courage'),
        (7, 'love'),
        (8, 'motivational'),
        (9, 'success'),
-       (10, 'wisdom');
+       (10, 'wisdom'),
+       (11, 'wisdom1');
 
 -- Insert records into authors
-INSERT INTO authors (name)
-VALUES ('Author One'),
-       ('Author Two'),
-       ('Author Three'),
-       ('Author Four'),
-       ('Author Five'),
-       ('Author Six'),
-       ('Author Seven'),
-       ('Author Eight'),
-       ('Author Nine'),
-       ('Author Ten');
+INSERT INTO authors (id_author, name)
+VALUES (1, 'Author One'),
+       (2, 'Author Two'),
+       (3, 'Author Three'),
+       (4, 'Author Four'),
+       (5, 'Author Five'),
+       (6, 'Author Six'),
+       (7, 'Author Seven'),
+       (8, 'Author Eight'),
+       (9, 'Author Nine'),
+       (10, 'Author Ten');
 
 -- Insert records into quotes
-INSERT INTO quotes (quote_text, author_id)
-VALUES ('The only way to do great work is to love what you do.', 1),
-       ('Success is not the key to happiness. Happiness is the key to success.', 2),
-       ('Life is 10% what happens to us and 90% how we react to it.', 3),
-       ('Keep your face always toward the sunshine—and shadows will fall behind you.', 4),
-       ('It does not matter how slowly you go as long as you do not stop.', 5),
-       ('The best time to plant a tree was twenty years ago. The second best time is now.', 6),
-       ('What lies behind us and what lies before us are tiny matters compared to what lies within us.', 7),
-       ('You miss 100% of the shots you don’t take.', 8),
-       ('To live will be an awfully big adventure.', 9),
-       ('The only limit to our realization of tomorrow will be our doubts of today.', 10),
-       ('In the end, we will remember not the words of our enemies, but the silence of our friends.', 1),
-       ('You only live once, but if you do it right, once is enough.', 2),
-       ('Success usually comes to those who are too busy to be looking for it.', 3),
-       ('Life is really simple, but we insist on making it complicated.', 4),
-       ('Do not wait to strike till the iron is hot, but make it hot by striking.', 5),
-       ('Everything you’ve ever wanted is on the other side of fear.', 6),
-       ('The journey of a thousand miles begins with one step.', 7),
-       ('You only fail when you stop trying.', 8),
-       ('Believe you can and you’re halfway there.', 9),
-       ('Act as if what you do makes a difference. It does.', 10);
+INSERT INTO quotes (id_quote, quote_text, author_id)
+VALUES (1, 'The only way to do great work is to love what you do.', 1),
+       (2, 'Success is not the key to happiness. Happiness is the key to success.', 2),
+       (3, 'Life is 10% what happens to us and 90% how we react to it.', 3),
+       (4, 'Keep your face always toward the sunshine—and shadows will fall behind you.', 4),
+       (5, 'It does not matter how slowly you go as long as you do not stop.', 5),
+       (6, 'The best time to plant a tree was twenty years ago. The second best time is now.', 6),
+       (7, 'What lies behind us and what lies before us are tiny matters compared to what lies within us.', 7),
+       (8, 'You miss 100% of the shots you don’t take.', 8),
+       (9, 'To live will be an awfully big adventure.', 9),
+       (10, 'The only limit to our realization of tomorrow will be our doubts of today.', 10),
+       (11, 'In the end, we will remember not the words of our enemies, but the silence of our friends.', 1),
+       (12, 'You only live once, but if you do it right, once is enough.', 2),
+       (13, 'Success usually comes to those who are too busy to be looking for it.', 3),
+       (14, 'Life is really simple, but we insist on making it complicated.', 4),
+       (15, 'Do not wait to strike till the iron is hot, but make it hot by striking.', 5),
+       (16, 'Everything you’ve ever wanted is on the other side of fear.', 6),
+       (17, 'The journey of a thousand miles begins with one step.', 7),
+       (18, 'You only fail when you stop trying.', 8),
+       (19, 'Believe you can and you’re halfway there.', 9),
+       (20, 'Act as if what you do makes a difference. It does.', 10);
 
 -- Insert records into categories_quotes
 INSERT INTO categories_quotes (category_id, quote_id)

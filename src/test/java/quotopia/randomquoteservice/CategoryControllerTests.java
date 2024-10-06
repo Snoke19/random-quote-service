@@ -93,13 +93,13 @@ class CategoryControllerTests {
 
         List<Category> categories = responseEntity.getBody();
         assertThat(categories).hasSizeGreaterThanOrEqualTo(2);
-        assertThat(categories.get(0).getName()).isEqualTo("happiness");
-        assertThat(categories.get(1).getName()).isEqualTo("inspirational");
+        assertThat(categories.get(0)).hasFieldOrPropertyWithValue("name", "happiness");
+        assertThat(categories.get(1)).hasFieldOrPropertyWithValue("name", "inspirational");
     }
 
     @Test
     void test_get_categories_with_offset() {
-        int offset = 5;
+        int offset = 0;
         ResponseEntity<List<Category>> responseEntity = restTemplate.exchange(
                 "/categories?offset=" + offset,
                 HttpMethod.GET,
@@ -113,13 +113,36 @@ class CategoryControllerTests {
         assertThat(responseEntity.getBody()).isNotNull();
 
         List<Category> categories = responseEntity.getBody();
-        assertThat(categories).hasSize(5);
+        assertThat(categories).hasSize(10);
 
-        assertThat(categories.get(0).getName()).isEqualTo("life");
-        assertThat(categories.get(1).getName()).isEqualTo("love");
-        assertThat(categories.get(2).getName()).isEqualTo("motivational");
-        assertThat(categories.get(3).getName()).isEqualTo("success");
-        assertThat(categories.get(4).getName()).isEqualTo("wisdom");
+        assertThat(categories.get(0)).hasFieldOrPropertyWithValue("name", "courage");
+        assertThat(categories.get(1)).hasFieldOrPropertyWithValue("name", "friendship");
+        assertThat(categories.get(2)).hasFieldOrPropertyWithValue("name", "happiness");
+        assertThat(categories.get(3)).hasFieldOrPropertyWithValue("name", "humor");
+        assertThat(categories.get(4)).hasFieldOrPropertyWithValue("name", "inspirational");
+        assertThat(categories.get(5)).hasFieldOrPropertyWithValue("name", "life");
+        assertThat(categories.get(6)).hasFieldOrPropertyWithValue("name", "love");
+        assertThat(categories.get(7)).hasFieldOrPropertyWithValue("name", "motivational");
+        assertThat(categories.get(8)).hasFieldOrPropertyWithValue("name", "success");
+        assertThat(categories.get(9)).hasFieldOrPropertyWithValue("name", "wisdom");
+
+        int offset2 = 10;
+        ResponseEntity<List<Category>> responseEntity2 = restTemplate.exchange(
+                "/categories?offset=" + offset2,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(responseEntity2).isNotNull();
+        assertThat(responseEntity2.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity2.getBody()).isNotNull();
+
+        List<Category> categories2 = responseEntity2.getBody();
+        assertThat(categories2).hasSize(1);
+
+        assertThat(categories2.get(0)).hasFieldOrPropertyWithValue("name", "wisdom1");
     }
 
     @Test
