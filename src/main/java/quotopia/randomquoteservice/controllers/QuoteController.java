@@ -1,6 +1,7 @@
 package quotopia.randomquoteservice.controllers;
 
 import jakarta.validation.constraints.NotEmpty;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ public class QuoteController {
         this.quoteService = quoteService;
     }
 
+    @CrossOrigin
     @GetMapping("/random/quote")
     public Quote getRandomQuote(@RequestParam("categories")
                                 @NotEmpty(message = "{quote.filter.notEmpty.categories}") List<Category> categories) {

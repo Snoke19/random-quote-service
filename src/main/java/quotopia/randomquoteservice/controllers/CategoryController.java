@@ -17,6 +17,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    @CrossOrigin
     @GetMapping({"/{name}", ""})
     public List<Category> getCategoriesByName(@PathVariable(value = "name", required = false) String categoryName,
                                               @Min(value = 0, message = "{category.filter.min.offset}")
