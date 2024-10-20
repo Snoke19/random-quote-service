@@ -84,12 +84,12 @@ class QuoteControllerTests {
                 }
         );
         assertThat(responseEntity).isNotNull();
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(responseEntity.getBody()).isNotNull();
         ResponseError responseError = responseEntity.getBody();
         assertThat(responseError).isNotNull();
 
-        assertThat(responseError.getType()).isEqualTo("Not found!");
+        assertThat(responseError.getType()).isEqualTo("NOT_FOUND_ENTITY");
         assertThat(responseError.getCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(responseError.getMessage()).isEqualTo("Quote not found!");
         assertThat(responseError.getDetails()).isNotNull();

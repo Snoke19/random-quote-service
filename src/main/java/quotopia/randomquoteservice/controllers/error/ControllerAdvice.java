@@ -8,18 +8,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.MatrixVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import quotopia.randomquoteservice.exceptions.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @RestControllerAdvice
 public class ControllerAdvice {
+
+    private static final String NOT_EMPTY = "NotEmpty";
 
     private final MessageSource messageSource;
 
@@ -32,14 +47,14 @@ public class ControllerAdvice {
 
         Map<String, String> errorsDetails = new HashMap<>();
         ResponseError errorResponse = new ResponseError(
-                "Not found!",
+                "NOT_FOUND_ENTITY",
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
                 errorsDetails,
                 request.getDescription(false),
                 LocalDateTime.now()
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({DataAccessException.class})
@@ -78,6 +93,7 @@ public class ControllerAdvice {
     public ResponseEntity<ResponseError> error(HandlerMethodValidationException exception, WebRequest request) {
 
         Map<String, String> errorsDetails = new HashMap<>();
+        AtomicReference<String> typeError = new AtomicReference<>("Validation");
 
         exception.visitResults(new HandlerMethodValidationException.Visitor() {
             @Override
@@ -112,9 +128,13 @@ public class ControllerAdvice {
 
             @Override
             public void requestParam(RequestParam requestParam, ParameterValidationResult result) {
-                result.getResolvableErrors().forEach(error ->
-                        errorsDetails.put(requestParam.name(), messageSource.getMessage(error, request.getLocale()))
-                );
+                result.getResolvableErrors().forEach(error -> {
+                    List<String> codes = Arrays.asList(Objects.requireNonNull(error.getCodes()));
+                    if (codes.contains(NOT_EMPTY)) {
+                        typeError.set("NOT_EMPTY_VALIDATION");
+                    }
+                    errorsDetails.put(requestParam.name(), messageSource.getMessage(error, request.getLocale()));
+                });
             }
 
             @Override
@@ -129,7 +149,7 @@ public class ControllerAdvice {
         });
 
         ResponseError errorResponse = new ResponseError(
-                "Validation",
+                typeError.get(),
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
                 errorsDetails,
