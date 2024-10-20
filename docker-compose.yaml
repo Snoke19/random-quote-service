@@ -18,7 +18,7 @@ services:
       timeout: 10s
       retries: 2
   random-quote-service:
-    image: random-quote-service:v1
+    image: random-quote-service:v2
     container_name: random-quote-service
     restart: always
     build: .
