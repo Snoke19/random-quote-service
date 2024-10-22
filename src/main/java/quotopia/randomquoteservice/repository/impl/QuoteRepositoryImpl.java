@@ -58,8 +58,8 @@ public class QuoteRepositoryImpl implements QuoteRepository {
 
     @Override
     public List<QuoteFull> findQuotesByTextWithOffset(String textQuote, int offset) {
-        if (textQuote == null || textQuote.isEmpty()) {
-            throw new IllegalArgumentException("Text quote cannot be null or empty");
+        if (textQuote == null) {
+            throw new IllegalArgumentException("Text quote cannot be null!");
         }
 
         String sql = """
