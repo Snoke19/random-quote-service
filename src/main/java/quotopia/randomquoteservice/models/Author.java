@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Author {
 
+    private int id;
     private String name;
 }

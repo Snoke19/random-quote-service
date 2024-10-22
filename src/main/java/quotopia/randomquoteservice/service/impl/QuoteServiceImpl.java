@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import quotopia.randomquoteservice.models.Category;
 import quotopia.randomquoteservice.models.Quote;
+import quotopia.randomquoteservice.models.QuoteFull;
 import quotopia.randomquoteservice.repository.QuoteRepository;
 import quotopia.randomquoteservice.service.QuoteService;
 
@@ -27,5 +28,14 @@ public class QuoteServiceImpl implements QuoteService {
                 .toList();
 
         return this.quoteRepository.findRandomQuoteByCategoriesExcludingPreviousId(categoryNames);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<QuoteFull> getQuotesByTextWithOffset(String textQuote, int offset) {
+        if (textQuote != null) {
+            textQuote = textQuote.toLowerCase();
+        }
+        return this.quoteRepository.findQuotesByTextWithOffset(textQuote, offset);
     }
 }
