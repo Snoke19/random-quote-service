@@ -3,14 +3,16 @@ package quotopia.randomquoteservice.models;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class QuoteFull extends Quote {
 
-    public QuoteFull(Integer id, String quoteText, Author author, Category category) {
-        super(id, quoteText, author);
-        this.category = category;
-    }
+    private List<Category> categories = new ArrayList<>();
 
-    private Category category;
+    public QuoteFull(Integer id, String quoteText, Author author) {
+        super(id, quoteText, author);
+    }
 }

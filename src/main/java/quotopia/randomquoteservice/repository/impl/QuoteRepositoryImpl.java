@@ -2,6 +2,7 @@ package quotopia.randomquoteservice.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -13,7 +14,10 @@ import quotopia.randomquoteservice.models.Quote;
 import quotopia.randomquoteservice.models.QuoteFull;
 import quotopia.randomquoteservice.repository.QuoteRepository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Repository
@@ -101,11 +105,25 @@ public class QuoteRepositoryImpl implements QuoteRepository {
         };
     }
 
-    private RowMapper<QuoteFull> mapFullQuote() {
-        return (rs, rowNum) -> {
-            Author author = new Author(rs.getInt("id_author"), rs.getString("author_name"));
-            Category category = new Category(rs.getInt("id_category"), rs.getString("category_name"));
-            return new QuoteFull(rs.getInt("id_quote"), rs.getString("quote_text"), author, category);
+    private ResultSetExtractor<List<QuoteFull>> mapFullQuote() {
+        return rs -> {
+            Map<Integer, QuoteFull> quoteMap = new HashMap<>();
+            while (rs.next()) {
+                int quoteId = rs.getInt("id_quote");
+                QuoteFull quote = quoteMap.get(quoteId);
+
+                if (quote == null) {
+                    Author author = new Author(rs.getInt("id_author"), rs.getString("author_name"));
+                    quote = new QuoteFull(quoteId, rs.getString("quote_text"), author);
+                    quoteMap.put(quoteId, quote);
+                }
+
+                Category category = new Category();
+                category.setId(rs.getInt("id_category"));
+                category.setName(rs.getString("category_name"));
+                quote.getCategories().add(category);
+            }
+            return new ArrayList<>(quoteMap.values());
         };
     }
 }

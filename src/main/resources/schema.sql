@@ -164,6 +164,7 @@ VALUES (1, 'The only way to do great work is to love what you do.', 1),
 -- Insert records into categories_quotes
 INSERT INTO categories_quotes (category_id, quote_id)
 VALUES (1, 1),
+       (2, 1),
        (2, 2),
        (3, 3),
        (4, 4),
