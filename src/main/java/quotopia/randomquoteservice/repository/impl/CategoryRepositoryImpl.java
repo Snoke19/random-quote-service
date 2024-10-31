@@ -20,11 +20,11 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Override
     public List<Category> findFirst10CategoriesByNameContainingOrderByNameAscWithOffset(String categoryName, int offset) {
         String sql = """
-                        select category.name as name
-                        from categories category
-                        where (COALESCE(:name, '') IS NULL OR category.name like concat('%', COALESCE(:name, ''), '%') escape '\\')
-                        order by category.name
-                        offset :offset rows fetch first 10 rows only
+                        SELECT category.name AS name
+                        FROM categories category
+                        WHERE (COALESCE(:name, '') IS NULL OR category.name ILIKE concat('%', COALESCE(:name, ''), '%') escape '\\')
+                        ORDER BY category.name
+                        OFFSET :offset ROWS FETCH FIRST 10 ROWS ONLY
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();

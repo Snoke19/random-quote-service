@@ -14,10 +14,14 @@ import quotopia.randomquoteservice.models.Quote;
 import quotopia.randomquoteservice.models.QuoteFull;
 import quotopia.randomquoteservice.repository.QuoteRepository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -66,75 +70,111 @@ public class QuoteRepositoryImpl implements QuoteRepository {
             throw new IllegalArgumentException("Text quote cannot be null!");
         }
 
-        String sql = """
+        String sqlQuotes = """
                 SELECT quote.id_quote,
                        quote.quote_text,
                        author.id_author AS id_author,
-                       author.name AS author_name,
-                       category.id_category AS id_category,
-                       category.name AS category_name
+                       author.name AS author_name
                 FROM quotes AS quote
-                JOIN categories_quotes cq ON quote.id_quote = cq.quote_id
-                INNER JOIN public.authors author ON author.id_author = quote.author_id
-                JOIN public.categories category ON category.id_category = cq.category_id
-                WHERE quote_text @@ to_tsquery(:textQuote)
+                        INNER JOIN public.authors author ON author.id_author = quote.author_id
+                WHERE quote_text ILIKE :textQuote
                 ORDER BY quote.id_quote
                 OFFSET :offset ROWS FETCH FIRST 10 ROWS ONLY;
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("textQuote", prepareTextQuoteParameter(textQuote));
+        params.addValue("textQuote", "%" + textQuote + "%");
         params.addValue("offset", offset);
 
-        List<QuoteFull> quotes;
+        List<Quote> quotes;
         try {
-            quotes = this.namedParameterJdbcTemplate.query(sql, params, mapFullQuote());
+            quotes = this.namedParameterJdbcTemplate.query(sqlQuotes, params, mapQuotes());
         } catch (EmptyResultDataAccessException e) {
             log.error("Quotes not found: textQuote: {}, errorMessage: {}", textQuote, e.getMessage());
             throw new EntityNotFoundException("Quotes not found!", e);
         }
 
-        return quotes;
+        if (quotes != null && !quotes.isEmpty()) {
+
+            String sqlCategories = """
+                    SELECT  cq.quote_id          AS quote_id,
+                            category.id_category AS id_category,
+                            category.name        AS category_name
+                    FROM quotes AS quote
+                            JOIN categories_quotes cq ON quote.id_quote = cq.quote_id
+                            JOIN public.categories category ON category.id_category = cq.category_id
+                    WHERE cq.quote_id IN (:quoteIds)
+                    ORDER BY quote.id_quote;
+                    """;
+
+            MapSqlParameterSource paramsCategories = new MapSqlParameterSource();
+            paramsCategories.addValue("quoteIds", quotes.stream().map(Quote::getId).collect(Collectors.toSet()));
+
+            Map<Integer, List<Category>> categoriesMap;
+            try {
+                categoriesMap = this.namedParameterJdbcTemplate.query(sqlCategories, paramsCategories, mapCategories());
+            } catch (EmptyResultDataAccessException e) {
+                log.error("Categories not found: textQuote: {}, errorMessage: {}", textQuote, e.getMessage());
+                throw new EntityNotFoundException("Categories not found!", e);
+            }
+
+            List<QuoteFull> quotesFull = new ArrayList<>();
+            if (categoriesMap != null && !categoriesMap.isEmpty()) {
+                for (int i = 0; i < quotes.size(); i++) {
+                    Quote quote = quotes.get(i);
+                    List<Category> categories = categoriesMap.getOrDefault(quote.getId(), Collections.emptyList());
+                    QuoteFull quoteFull = new QuoteFull(quote.getId(), quote.getQuoteText(), quote.getAuthor(), categories);
+                    quotesFull.add(quoteFull);
+                }
+            }
+
+            return quotesFull;
+        }
+
+        return Collections.emptyList();
     }
 
     private RowMapper<Quote> mapQuote() {
-        return (rs, rowNum) -> {
-            Author author = new Author(rs.getInt("id_author"), rs.getString("author_name"));
-            return new Quote(rs.getInt("id_quote"), rs.getString("quote_text"), author);
-        };
+        return (rs, rowNum) -> prepareQuote(rs);
     }
 
-    private ResultSetExtractor<List<QuoteFull>> mapFullQuote() {
+    private ResultSetExtractor<List<Quote>> mapQuotes() {
         return rs -> {
-            Map<Integer, QuoteFull> quoteMap = new HashMap<>();
+            List<Quote> quotes = new ArrayList<>();
             while (rs.next()) {
-                int quoteId = rs.getInt("id_quote");
-                QuoteFull quote = quoteMap.get(quoteId);
-
-                if (quote == null) {
-                    Author author = new Author(rs.getInt("id_author"), rs.getString("author_name"));
-                    quote = new QuoteFull(quoteId, rs.getString("quote_text"), author);
-                    quoteMap.put(quoteId, quote);
-                }
-
-                Category category = new Category();
-                category.setId(rs.getInt("id_category"));
-                category.setName(rs.getString("category_name"));
-                quote.getCategories().add(category);
+                Quote quote = prepareQuote(rs);
+                quotes.add(quote);
             }
-            return new ArrayList<>(quoteMap.values());
+            return quotes;
         };
     }
 
-    private String prepareTextQuoteParameter(String textQuote) {
-        String[] textQuoteSplit = textQuote.trim().split(" ");
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < textQuoteSplit.length; i++) {
-            stringBuilder.append(textQuoteSplit[i]);
-            if (textQuoteSplit.length - 1 != i) {
-                stringBuilder.append(" & ");
+    private ResultSetExtractor<Map<Integer, List<Category>>> mapCategories() {
+        return rs -> {
+            Map<Integer, List<Category>> categoriesMap = new HashMap<>();
+            while (rs.next()) {
+                int quoteId = rs.getInt("quote_id");
+                List<Category> categories = categoriesMap.get(quoteId);
+
+                Category category = prepareCategory(rs);
+                if (categories == null) {
+                    List<Category> newCategories = new ArrayList<>();
+                    newCategories.add(category);
+                    categoriesMap.put(quoteId, newCategories);
+                } else {
+                    categoriesMap.get(quoteId).add(category);
+                }
             }
-        }
-        return stringBuilder.toString();
+            return categoriesMap;
+        };
+    }
+
+    private Category prepareCategory(ResultSet rs) throws SQLException {
+        return new Category(rs.getInt("id_category"), rs.getString("category_name"));
+    }
+
+    private Quote prepareQuote(ResultSet rs) throws SQLException {
+        Author author = new Author(rs.getInt("id_author"), rs.getString("author_name"));
+        return new Quote(rs.getInt("id_quote"), rs.getString("quote_text"), author);
     }
 }

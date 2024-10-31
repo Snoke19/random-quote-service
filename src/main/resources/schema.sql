@@ -100,6 +100,7 @@ ALTER TABLE ONLY quotes
     ADD CONSTRAINT id_quote_pk PRIMARY KEY (id_quote);
 
 CREATE INDEX idx_categories_name_gin ON categories USING gin (name gin_trgm_ops);
+CREATE INDEX quote_text_trgm_idx ON quotes USING gin (quote_text gin_trgm_ops);
 
 ALTER TABLE ONLY quotes
     ADD CONSTRAINT author_id_quotes_fk FOREIGN KEY (author_id) REFERENCES authors (id_author);
@@ -147,11 +148,11 @@ VALUES (1, 'The only way to do great work is to love what you do.', 1),
        (5, 'It does not matter how slowly you go as long as you do not stop.', 5),
        (6, 'The best time to plant a tree was twenty years ago. The second best time is now.', 6),
        (7, 'What lies behind us and what lies before us are tiny matters compared to what lies within us.', 7),
-       (8, 'You miss 100% of the shots you don’t take.', 8),
+       (8, 'Keep your face always toward the sunshine—and shadows will fall behind you.', 8),
        (9, 'To live will be an awfully big adventure.', 9),
        (10, 'The only limit to our realization of tomorrow will be our doubts of today.', 10),
        (11, 'In the end, we will remember not the words of our enemies, but the silence of our friends.', 1),
-       (12, 'You only live once, but if you do it right, once is enough.', 2),
+       (12, 'Keep your face always toward the sunshine—and shadows will fall behind you.', 2),
        (13, 'Success usually comes to those who are too busy to be looking for it.', 3),
        (14, 'Life is really simple, but we insist on making it complicated.', 4),
        (15, 'Do not wait to strike till the iron is hot, but make it hot by striking.', 5),

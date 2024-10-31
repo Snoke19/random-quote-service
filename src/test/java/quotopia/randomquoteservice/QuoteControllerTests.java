@@ -15,6 +15,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import quotopia.randomquoteservice.controllers.error.ResponseError;
 import quotopia.randomquoteservice.models.Quote;
+import quotopia.randomquoteservice.models.QuoteFull;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -116,5 +119,29 @@ class QuoteControllerTests {
         assertThat(responseError.getMessage()).isEqualTo("Required request parameter 'categories' for method parameter type List is not present");
         assertThat(responseError.getDetails()).isNotNull();
         assertThat(responseError.getPath()).isEqualTo("uri=/random/quote");
+    }
+
+    @Test
+    void test_get_quotes_by_text() {
+        ResponseEntity<List<QuoteFull>> responseEntity = restTemplate.exchange(
+                "/quotes?text=towa&offset=0",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+        List<QuoteFull> quotesFull = responseEntity.getBody();
+        assertThat(quotesFull).isNotNull();
+
+        assertThat(quotesFull.get(0).getId()).isEqualTo(4);
+        assertThat(quotesFull.get(0).getQuoteText()).isEqualTo("Keep your face always toward the sunshine—and shadows will fall behind you.");
+        assertThat(quotesFull.get(0).getAuthor()).isNotNull();
+        assertThat(quotesFull.get(0).getAuthor().getId()).isEqualTo(4);
+        assertThat(quotesFull.get(0).getAuthor().getName()).isEqualTo("Author Four");
+        assertThat(quotesFull.get(0).getCategories()).isNotNull();
+        assertThat(quotesFull.get(0).getCategories().get(0).getName()).isEqualTo("humor");
     }
 }
