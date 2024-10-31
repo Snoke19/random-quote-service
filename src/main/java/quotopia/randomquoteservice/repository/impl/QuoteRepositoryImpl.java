@@ -71,20 +71,19 @@ public class QuoteRepositoryImpl implements QuoteRepository {
                        quote.quote_text,
                        author.id_author AS id_author,
                        author.name AS author_name,
-                       category.id_category as id_category,
+                       category.id_category AS id_category,
                        category.name AS category_name
                 FROM quotes AS quote
                 JOIN categories_quotes cq ON quote.id_quote = cq.quote_id
                 INNER JOIN public.authors author ON author.id_author = quote.author_id
                 JOIN public.categories category ON category.id_category = cq.category_id
-                AND quote.quote_text like :textQuote
-                order by quote.id_quote
-                offset :offset rows fetch first 10 rows only;
+                WHERE quote_text @@ to_tsquery(:textQuote)
+                ORDER BY quote.id_quote
+                OFFSET :offset ROWS FETCH FIRST 10 ROWS ONLY;
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        String textQuoteWildcards = "%" + textQuote + "%";
-        params.addValue("textQuote", textQuoteWildcards);
+        params.addValue("textQuote", prepareTextQuoteParameter(textQuote));
         params.addValue("offset", offset);
 
         List<QuoteFull> quotes;
@@ -125,5 +124,17 @@ public class QuoteRepositoryImpl implements QuoteRepository {
             }
             return new ArrayList<>(quoteMap.values());
         };
+    }
+
+    private String prepareTextQuoteParameter(String textQuote) {
+        String[] textQuoteSplit = textQuote.trim().split(" ");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < textQuoteSplit.length; i++) {
+            stringBuilder.append(textQuoteSplit[i]);
+            if (textQuoteSplit.length - 1 != i) {
+                stringBuilder.append(" & ");
+            }
+        }
+        return stringBuilder.toString();
     }
 }
