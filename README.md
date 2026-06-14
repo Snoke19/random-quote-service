@@ -89,43 +89,50 @@ This project is built using **Spring Boot 4.1.0** with **PostgreSQL** as the dat
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              Client Applications                             │
-│  (Web, Mobile, CLI, etc.)                                                     │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                            Random Quote Service                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐ │
-│  │                    REST Controllers Layer                               │ │
-│  │  ┌──────────────┐  ┌──────────────────┐                            │ │
-│  │  │ QuoteController │  │ CategoryController │                            │ │
-│  │  └──────────────┘  └──────────────────┘                            │ │
-│  └─────────────────────────────────────────────────────────────────────┘ │
-│  ┌─────────────────────────────────────────────────────────────────────┐ │
-│  │                     Service Layer                                        │ │
-│  │  ┌──────────────┐  ┌──────────────────┐                            │ │
-│  │  │ QuoteService   │  │ CategoryService    │                            │ │
-│  │  └──────────────┘  └──────────────────┘                            │ │
-│  └─────────────────────────────────────────────────────────────────────┘ │
-│  ┌─────────────────────────────────────────────────────────────────────┐ │
-│  │                   Repository Layer                                        │ │
-│  │  ┌──────────────┐  ┌──────────────────┐                            │ │
-│  │  │ QuoteRepository│  │ CategoryRepository │                            │ │
-│  │  └──────────────┘  └──────────────────┘                            │ │
-│  └─────────────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                            PostgreSQL Database                                │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────┐        │
-│  │  authors  │◄──►│  quotes  │◄──►│categories │◄──►│categories_  │        │
-│  └──────────┘    └──────────┘    └──────────┘    │   quotes      │        │
-│                                                    └──────────────┘        │
-└─────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+
+    Client["Client Applications<br/>(Web)"]
+
+    subgraph Service["Random Quote Service"]
+
+        subgraph Controllers["REST Controllers Layer"]
+            QuoteController["QuoteController"]
+            CategoryController["CategoryController"]
+        end
+
+        subgraph Services["Service Layer"]
+            QuoteService["QuoteService"]
+            CategoryService["CategoryService"]
+        end
+
+        subgraph Repositories["Repository Layer"]
+            QuoteRepository["QuoteRepository"]
+            CategoryRepository["CategoryRepository"]
+        end
+
+        QuoteController --> QuoteService
+        CategoryController --> CategoryService
+
+        QuoteService --> QuoteRepository
+        CategoryService --> CategoryRepository
+    end
+
+    subgraph Database["PostgreSQL Database"]
+        Authors["authors"]
+        Quotes["quotes"]
+        Categories["categories"]
+        CategoriesQuotes["categories_quotes"]
+
+        Authors <--> Quotes
+        Quotes <--> Categories
+        Categories <--> CategoriesQuotes
+    end
+
+    Client --> Service
+
+    QuoteRepository --> Database
+    CategoryRepository --> Database
 ```
 
 ### Design Patterns Used
@@ -552,45 +559,6 @@ spring.messages.basename=${SOURCE_MESSAGES}
 management.endpoints.web.exposure.include=health
 ```
 
-### Message Properties
-
-Internationalized messages are in `src/main/resources/messages.properties`:
-
-```properties
-# Validation messages
-category.filter.min.offset=Offset cannot be negative!
-quote.filter.notEmpty.categories=Categories cannot be empty! Please add categories!
-```
-
----
-
-## 📦 Dependencies
-
-### Core Dependencies
-
-| Dependency | Version | Purpose |
-|------------|---------|---------|
-| Spring Boot Starter Web | 4.1.0 | REST API support |
-| Spring Boot Starter Data JDBC | 4.1.0 | Database access |
-| Spring Boot Starter Validation | 4.1.0 | Input validation |
-| Spring Boot Starter Actuator | 4.1.0 | Monitoring and health checks |
-| PostgreSQL JDBC Driver | 42.7.11 | Database connectivity |
-| Lombok | 1.18.36 | Boilerplate code reduction |
-
-### Test Dependencies
-
-| Dependency | Version | Purpose |
-|------------|---------|---------|
-| Spring Boot Test | 4.1.0 | Spring testing support |
-| Spring Boot TestContainers | 4.1.0 | Container-based testing |
-| TestContainers | 2.0.5 | Test database containers |
-| TestContainers PostgreSQL | 2.0.5 | PostgreSQL test container |
-| JUnit Jupiter | - | Unit testing framework |
-| Mockito | - | Mocking framework |
-| AssertJ | - | Assertion library |
-
----
-
 ## 🧪 Testing
 
 ### Running Tests
@@ -605,161 +573,6 @@ quote.filter.notEmpty.categories=Categories cannot be empty! Please add categori
 # Run with test coverage
 ./mvnw clean verify
 ```
-
-### Test Coverage
-
-| Test Class | Type | Description |
-|-------------|------|-------------|
-| `QuoteControllerTests` | Integration | Tests quote endpoints with real database |
-| `CategoryControllerTests` | Integration | Tests category endpoints with real database |
-| `QuoteRepositoryImplTest` | Unit | Tests repository with mocked JDBC template |
-| `DataAccessExceptionQuoteTest` | Integration | Tests error handling for data access |
-
-### Test Configuration
-
-Tests use **TestContainers** to spin up a real PostgreSQL container for integration testing:
-
-```java
-@Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class QuoteControllerTests {
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgreSQLContainer = 
-        new PostgreSQLContainer<>("postgres:15-alpine");
-}
-```
-
----
-
-## 📊 Performance Considerations
-
-### Database Optimization
-
-- **GIN Indexes**: Used for full-text search on `categories.name` and `quotes.quote_text`
-- **Query Optimization**: All queries use proper indexing and parameterized queries
-- **Pagination**: All list endpoints support offset-based pagination (10 items per page)
-
-### Caching
-
-Currently, no caching is implemented. For production use, consider adding:
-
-```java
-// Spring Cache configuration
-@Configuration
-@EnableCaching
-public class CacheConfig {
-    @Bean
-    public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("quotes");
-    }
-}
-```
-
-### Recommendations for High Traffic
-
-1. **Add Redis Cache**: Cache frequently accessed quotes
-2. **Connection Pooling**: Configure HikariCP properly
-3. **Rate Limiting**: Add rate limiting for public endpoints
-4. **CDN**: Use CDN for static responses
-
----
-
-## 🔒 Security
-
-### Current Security Measures
-
-- ✅ **Input Validation**: All inputs are validated
-- ✅ **Parameterized Queries**: No SQL injection vulnerabilities
-- ✅ **Environment Variables**: Credentials are externalized
-- ✅ **Health Check Only**: Only `/actuator/health` is exposed
-
-### Security Recommendations for Production
-
-1. **Add Authentication**: Implement API key or OAuth2 authentication
-2. **Configure CORS**: Restrict allowed origins
-3. **Enable HTTPS**: Add SSL/TLS configuration
-4. **Rate Limiting**: Add rate limiting for public endpoints
-5. **Secrets Management**: Use HashiCorp Vault or AWS Secrets Manager
-6. **Input Sanitization**: Add additional sanitization for search queries
-
-### Example: Adding Spring Security
-
-```java
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .httpBasic(withDefaults());
-        return http.build();
-    }
-}
-```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these guidelines:
-
-### Getting Started
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Make your changes
-4. Run tests (`./mvnw test`)
-5. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-6. Push to the branch (`git push origin feature/AmazingFeature`)
-7. Open a Pull Request
-
-### Contribution Guidelines
-
-- **Code Style**: Follow existing code style and conventions
-- **Commits**: Use clear, descriptive commit messages
-- **Tests**: Add tests for new features and bug fixes
-- **Documentation**: Update documentation for any API changes
-- **Pull Requests**: Provide clear description of changes
-
-### Pull Request Template
-
-```markdown
-## Description
-
-[Clear description of the changes]
-
-## Related Issue
-
-[Link to related issue, if any]
-
-## Changes Made
-
-- [ ] Feature implementation
-- [ ] Bug fix
-- [ ] Documentation update
-- [ ] Test coverage
-- [ ] Refactoring
-
-## Testing
-
-- [ ] All tests pass
-- [ ] New tests added
-- [ ] Manual testing completed
-
-## Screenshots (if applicable)
-
-## Notes
-
-[Any additional notes]
-```
-
----
 
 ## 📜 License
 
@@ -788,55 +601,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
----
-
-## 📞 Contact
-
-| Role | Name | Email | GitHub |
-|------|------|-------|-------|
-| Maintainer | Alex | alex@example.com | [@alex](https://github.com/alex) |
-| Contributor | - | - | - |
-
-### Support
-
-For support, please:
-
-1. **Check the documentation** - Most questions are answered here
-2. **Search existing issues** - Your question might already be answered
-3. **Open a new issue** - For bugs or feature requests
-4. **Create a discussion** - For general questions
-
-### Community
-
-- **GitHub Discussions**: [Link to Discussions](https://github.com/your-org/random-quote-service/discussions)
-- **Issues**: [Report Issues](https://github.com/your-org/random-quote-service/issues)
-- **Pull Requests**: [Submit PR](https://github.com/your-org/random-quote-service/pulls)
-
----
-
-## 🙏 Acknowledgments
-
-- **Spring Boot Team** - For the amazing framework
-- **TestContainers** - For container-based testing
-- **PostgreSQL** - For the reliable database
-- **All Contributors** - For their valuable contributions
-
----
-
-## 📅 Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
-
----
-
-## 🔖 Version History
-
-| Version | Date | Description |
-|---------|------|-------------|
-| 0.0.1 | 2026-06-15 | Initial release |
-
----
 
 *Built with ❤️ using Spring Boot and Java*
 
